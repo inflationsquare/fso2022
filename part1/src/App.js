@@ -8,19 +8,19 @@ const Header = (props) => {
 }
 
 
-const Part = (props) => {
+const Part = ({name, exercises}) => {
   return (
     <div>
-      <p>{props.name} {props.exercises}</p>
+      <p>{name} {exercises}</p>
     </div>
   )
 }
 
 
-const Total = (props) => {
+const Total = ({total}) => {
   return (
     <div>
-      <p>Number of exercises {props.total}</p>
+      <p>Number of exercises {total}</p>
     </div>
   )
 }
