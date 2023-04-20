@@ -37,7 +37,7 @@ const PersonForm = ({name, number, persons, nameUpdate, numberUpdate, personsUpd
 const Numbers = ({persons, filterValue}) => {return(<>
       <h2>Numbers</h2>
       <ul>
-    {persons.filter(p => p.name.toLowerCase().includes(filterValue)).map(p => <Contact name={p.name} number={p.number}/>)}
+    {persons.filter(p => p.name.toLowerCase().includes(filterValue.toLowerCase())).map(p => <Contact name={p.name} number={p.number}/>)}
       </ul>
   </>)
 }
