@@ -22,7 +22,6 @@ const PersonForm = ({name, number, persons, nameUpdate, numberUpdate, personsUpd
         .then(createdPerson => {
           personsUpdate(persons.concat(createdPerson))
         })
-
   }
 
   return(
@@ -40,10 +39,22 @@ const PersonForm = ({name, number, persons, nameUpdate, numberUpdate, personsUpd
     </form>)
 }
 
-const Numbers = ({persons, filterValue}) => {return(<>
+const Numbers = ({persons, filterValue, personsUpdate}) => {return(<>
       <h2>Numbers</h2>
       <ul>
-    {persons.filter(p => p.name.toLowerCase().includes(filterValue.toLowerCase())).map(p => <Contact name={p.name} number={p.number}/>)}
+      {persons
+        .filter(p => p.name.toLowerCase().includes(filterValue.toLowerCase()))
+        .map(p => <><Contact name={p.name} number={p.number}/>
+          <button onClick={() => {
+            return window.confirm("Are you sure?") ? 
+            personService
+              .removeNumber(p.id)
+              .then(() => {
+                personsUpdate(persons.filter(x => p.id !== x.id))
+              }) : 
+            null}}>
+            Delete
+          </button></>)}
       </ul>
   </>)
 }
@@ -69,7 +80,7 @@ const App = () => {
       <h2>Phonebook</h2>
       <Filter filterValue={filterValue} filterUpdate={setFilter}/>
       <PersonForm name={newName} number={newNumber} persons={persons} nameUpdate={setNewName} numberUpdate={setNewNumber} personsUpdate={setPersons}  />
-    <Numbers persons={persons} filterValue={filterValue} />
+    <Numbers persons={persons} filterValue={filterValue} personsUpdate={setPersons} />
     </div>
   )
 }
