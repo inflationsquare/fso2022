@@ -8,3 +8,4 @@ node_modules/
 **/reportWebVitals.js
 **/App.test.js
 **/logo.svg
+**/db.json
