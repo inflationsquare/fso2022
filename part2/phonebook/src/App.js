@@ -7,7 +7,6 @@ const Notification = ({ message }) => {
     if (message === null) {
       return null
     }
-  
     return (
       <div className='info'>
         {message}
@@ -15,7 +14,18 @@ const Notification = ({ message }) => {
     )
   }
 
-const PersonForm = ({name, number, persons, nameUpdate, numberUpdate, personsUpdate, filterValue, notificationUpdater}) => {
+const ErrorNotification = ({ message }) => {
+    if (message === null) {
+      return null
+    }
+    return (
+      <div className='error'>
+        {message}
+      </div>
+    )
+  }
+
+const PersonForm = ({name, number, persons, nameUpdate, numberUpdate, personsUpdate, filterValue, notificationUpdater, errorUpdater}) => {
   const updateName = (event) => {
     nameUpdate(event.target.value)
   }
@@ -39,7 +49,17 @@ const PersonForm = ({name, number, persons, nameUpdate, numberUpdate, personsUpd
                     .filter(p => p.name.toLowerCase().includes(filterValue.toLowerCase()))
                     .map(p => p.id === id ? {...p, number: number} : p)
                   )
-              }) : null
+              })
+              .catch(() => {
+                errorUpdater(`Information about ${person.name} has already been deleted from the server`)
+                setTimeout(() => {errorUpdater(null)}, 3000)
+                personsUpdate(
+                  persons
+                    .filter(p => p.name.toLowerCase().includes(filterValue.toLowerCase()))
+                    .filter(p => p.id !== id)
+                  )
+              }
+                ) : null
 
     const existingPerson = persons.filter(p => p.name === name)
 
@@ -68,7 +88,7 @@ const PersonForm = ({name, number, persons, nameUpdate, numberUpdate, personsUpd
     </form>)
 }
 
-const Numbers = ({persons, filterValue, personsUpdate, notificationUpdater}) => {return(<>
+const Numbers = ({persons, filterValue, personsUpdate, notificationUpdater, errorUpdater}) => {return(<>
       <h2>Numbers</h2>
       <ul>
       {persons
@@ -81,6 +101,11 @@ const Numbers = ({persons, filterValue, personsUpdate, notificationUpdater}) => 
               .then(() => {
                 notificationUpdater(`${p.name}'s number has been deleted`)
                 setTimeout(() => {notificationUpdater(null)}, 3000)
+                personsUpdate(persons.filter(x => p.id !== x.id))
+              })
+              .catch(() => {
+                errorUpdater(`Information about ${p.name} has already been deleted from the server`)
+                setTimeout(() => {errorUpdater(null)}, 3000)
                 personsUpdate(persons.filter(x => p.id !== x.id))
               }) : 
             null}}>
@@ -104,6 +129,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filterValue, setFilter] = useState('')
   const [notificationMessage, setNotificationMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {personService.getAll().then(initialPersons => setPersons(initialPersons))}, [])
 
@@ -111,9 +137,24 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
       <Notification message={notificationMessage}></Notification>
+      <ErrorNotification message={errorMessage}></ErrorNotification>
       <Filter filterValue={filterValue} filterUpdate={setFilter}/>
-      <PersonForm name={newName} number={newNumber} persons={persons} nameUpdate={setNewName} numberUpdate={setNewNumber} personsUpdate={setPersons} filterValue={filterValue} notificationUpdater={setNotificationMessage}/>
-    <Numbers persons={persons} filterValue={filterValue} personsUpdate={setPersons} notificationUpdater={setNotificationMessage}/>
+      <PersonForm 
+        name={newName} 
+        number={newNumber} 
+        persons={persons} 
+        nameUpdate={setNewName} 
+        numberUpdate={setNewNumber} 
+        personsUpdate={setPersons} 
+        filterValue={filterValue} 
+        notificationUpdater={setNotificationMessage} 
+        errorUpdater={setErrorMessage}/>
+    <Numbers 
+      persons={persons} 
+      filterValue={filterValue} 
+      personsUpdate={setPersons} 
+      notificationUpdater={setNotificationMessage}
+      errorUpdater={setErrorMessage}/>
     </div>
   )
 }
