@@ -3,7 +3,19 @@ import personService from './services/persons'
 
 const Contact = ({name, number}) => <><li key={name}>{name} {number}</li></>
 
-const PersonForm = ({name, number, persons, nameUpdate, numberUpdate, personsUpdate, filterValue}) => {
+const Notification = ({ message }) => {
+    if (message === null) {
+      return null
+    }
+  
+    return (
+      <div className='info'>
+        {message}
+      </div>
+    )
+  }
+
+const PersonForm = ({name, number, persons, nameUpdate, numberUpdate, personsUpdate, filterValue, notificationUpdater}) => {
   const updateName = (event) => {
     nameUpdate(event.target.value)
   }
@@ -20,6 +32,8 @@ const PersonForm = ({name, number, persons, nameUpdate, numberUpdate, personsUpd
             personService
               .update(id, newData)
               .then(() => {
+                notificationUpdater(`${newData.name}'s number has been changed`)
+                setTimeout(() => {notificationUpdater(null)}, 3000)
                 personsUpdate(
                   persons
                     .filter(p => p.name.toLowerCase().includes(filterValue.toLowerCase()))
@@ -33,6 +47,8 @@ const PersonForm = ({name, number, persons, nameUpdate, numberUpdate, personsUpd
       personService
         .create(person)
         .then(createdPerson => {
+          notificationUpdater(`${createdPerson.name}'s number has been added`)
+          setTimeout(() => {notificationUpdater(null)}, 3000)
           personsUpdate(persons.concat(createdPerson))
         })
   }
@@ -52,17 +68,19 @@ const PersonForm = ({name, number, persons, nameUpdate, numberUpdate, personsUpd
     </form>)
 }
 
-const Numbers = ({persons, filterValue, personsUpdate}) => {return(<>
+const Numbers = ({persons, filterValue, personsUpdate, notificationUpdater}) => {return(<>
       <h2>Numbers</h2>
       <ul>
       {persons
         .filter(p => p.name.toLowerCase().includes(filterValue.toLowerCase()))
         .map(p => <><Contact name={p.name} number={p.number}/>
           <button onClick={() => {
-            return window.confirm("Are you sure?") ? 
+            return window.confirm("Are you sure you want to delete this number?") ? 
             personService
               .removeNumber(p.id)
               .then(() => {
+                notificationUpdater(`${p.name}'s number has been deleted`)
+                setTimeout(() => {notificationUpdater(null)}, 3000)
                 personsUpdate(persons.filter(x => p.id !== x.id))
               }) : 
             null}}>
@@ -85,15 +103,17 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterValue, setFilter] = useState('')
+  const [notificationMessage, setNotificationMessage] = useState(null)
 
   useEffect(() => {personService.getAll().then(initialPersons => setPersons(initialPersons))}, [])
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notificationMessage}></Notification>
       <Filter filterValue={filterValue} filterUpdate={setFilter}/>
-      <PersonForm name={newName} number={newNumber} persons={persons} nameUpdate={setNewName} numberUpdate={setNewNumber} personsUpdate={setPersons} filterValue={filterValue}/>
-    <Numbers persons={persons} filterValue={filterValue} personsUpdate={setPersons} />
+      <PersonForm name={newName} number={newNumber} persons={persons} nameUpdate={setNewName} numberUpdate={setNewNumber} personsUpdate={setPersons} filterValue={filterValue} notificationUpdater={setNotificationMessage}/>
+    <Numbers persons={persons} filterValue={filterValue} personsUpdate={setPersons} notificationUpdater={setNotificationMessage}/>
     </div>
   )
 }
