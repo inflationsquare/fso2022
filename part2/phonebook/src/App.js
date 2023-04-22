@@ -3,7 +3,7 @@ import personService from './services/persons'
 
 const Contact = ({name, number}) => <><li key={name}>{name} {number}</li></>
 
-const PersonForm = ({name, number, persons, nameUpdate, numberUpdate, personsUpdate}) => {
+const PersonForm = ({name, number, persons, nameUpdate, numberUpdate, personsUpdate, filterValue}) => {
   const updateName = (event) => {
     nameUpdate(event.target.value)
   }
@@ -14,9 +14,22 @@ const PersonForm = ({name, number, persons, nameUpdate, numberUpdate, personsUpd
 
   const addPerson = (event) => {
     event.preventDefault()
+
     const person = {name: name, number: number}
-    persons.filter(p => p.name === name).length > 0 ? 
-      alert(`${name} is already added to phonebook`) :
+    const confirmChange = (id, newData) => window.confirm(`${person.name} already exists, replace number?`) ? 
+            personService
+              .update(id, newData)
+              .then(() => {
+                personsUpdate(
+                  persons
+                    .filter(p => p.name.toLowerCase().includes(filterValue.toLowerCase()))
+                    .map(p => p.id === id ? {...p, number: number} : p)
+                  )
+              }) : null
+
+    const existingPerson = persons.filter(p => p.name === name)
+
+    existingPerson.length > 0 ? confirmChange(existingPerson[0].id, person) :
       personService
         .create(person)
         .then(createdPerson => {
@@ -79,7 +92,7 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
       <Filter filterValue={filterValue} filterUpdate={setFilter}/>
-      <PersonForm name={newName} number={newNumber} persons={persons} nameUpdate={setNewName} numberUpdate={setNewNumber} personsUpdate={setPersons}  />
+      <PersonForm name={newName} number={newNumber} persons={persons} nameUpdate={setNewName} numberUpdate={setNewNumber} personsUpdate={setPersons} filterValue={filterValue}/>
     <Numbers persons={persons} filterValue={filterValue} personsUpdate={setPersons} />
     </div>
   )
