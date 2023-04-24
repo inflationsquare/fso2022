@@ -1,3 +1,5 @@
+import Weather from './Weather'
+
 const filterCountries = (searchTerm, countryList) => {
     console.log('countryList', countryList)
     console.log('searchTerm', searchTerm)
@@ -18,12 +20,14 @@ const Country = ({searchTerm, countryList, selectedCountry, setSelectedCountry})
         console.log('language', country.languages)
 
         const languages = Object.values(country.languages).map((language) => {return <li>{language}</li>})
+        const capital = country.capital[0]
+        const [lat, lon] = country.capitalInfo.latlng
 
         return (
             <div>
                 <h1>{country.name.common}</h1>
                 <div>
-                    <p>Capital: {country.capital[0]}</p>
+                    <p>Capital: {capital}</p>
                     <p>Area: {country.area}m<sup>2</sup></p>
                 </div>
                 <div>
@@ -31,6 +35,7 @@ const Country = ({searchTerm, countryList, selectedCountry, setSelectedCountry})
                     <ul>{languages}</ul>
                 </div>
                 <img src={country.flags.svg} width='300px'/>
+                <Weather capital={capital} lat={lat} lon={lon}/>
             </div>
             )
     }

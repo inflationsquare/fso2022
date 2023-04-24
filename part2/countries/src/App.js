@@ -6,6 +6,7 @@ const App = () => {
   const [search, setSearch] = useState('')
   const [countries, setCountries] = useState([])
   const [selectedCountry, setSelectedCountry] = useState(null)
+
   console.log(countries)
 
   useEffect(() => {apiService.getAll().then(c => setCountries(c))}, [])
