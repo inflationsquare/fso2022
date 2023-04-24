@@ -6,14 +6,14 @@ const filterCountries = (searchTerm, countryList) => {
     return filteredCountries
 }
 
-const Country = ({searchTerm, countryList}) => {
+const Country = ({searchTerm, countryList, selectedCountry, setSelectedCountry}) => {
 
     const filteredCountries = filterCountries(searchTerm, countryList)
 
     console.log('filtered to ', filteredCountries.length, 'countries')
 
-    if (filteredCountries.length === 1) {
-        const country = filteredCountries[0]
+    if (selectedCountry !== null) {
+        const country = selectedCountry
 
         console.log('language', country.languages)
 
@@ -36,7 +36,9 @@ const Country = ({searchTerm, countryList}) => {
     }
 
     if (filteredCountries.length <= 10) {
-        const countries = filteredCountries.map((x) => {return <li>{x.name.common}</li>})
+        const countries = filteredCountries.map((x) => {
+            return <li>{x.name.common}<button onClick={() => setSelectedCountry(x)}>Select</button></li>
+        })
         return <ul>{countries}</ul>
     }
 
