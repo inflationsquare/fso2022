@@ -1,0 +1,28 @@
+# fly.toml app configuration file generated for nameless-haze-8399 on 2023-04-25T23:11:56+01:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "nameless-haze-8399"
+primary_region = "cdg"
+
+[env]
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = false
+  auto_stop_machines = true
+  auto_start_machines = true
+
+[[services]]
+  http_checks = []
+  internal_port = 8080
+  processes = ["app"]
+
+[checks]
+  [checks.alive]
+    type = "tcp"
+    interval = "15s"
+    timeout = "2s"
+    grace_period = "5s"
